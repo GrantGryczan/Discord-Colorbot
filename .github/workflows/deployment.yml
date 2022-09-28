@@ -9,7 +9,7 @@ jobs:
     name: Deploy
     runs-on: ubuntu-latest
     steps:
-    - name: executing remote SSH commands
+    - name: Execute remote SSH commands
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.HOST }}
@@ -19,4 +19,3 @@ jobs:
         script: |
           cd Discord-Colorbot
           git pull origin main
-          git status
