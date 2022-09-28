@@ -20,4 +20,5 @@ jobs:
           cd Discord-Colorbot
           git pull origin main
           npm run tmux-stop
+          npm install
           npm run tmux-start
