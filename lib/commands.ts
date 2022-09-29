@@ -47,9 +47,11 @@ client.once('ready', async () => {
 /** A sorting compare function which autocomplete options should use to sort by the index of the focused value. */
 export const byOptionIndexOf = (focusedValue: string) => (
 	(a: ApplicationCommandOptionChoiceData, b: ApplicationCommandOptionChoiceData) => {
-		// Replace `-1`s with `Infinity`s so missing indexes mean last rather than first.
-		const aIndex = a.name.indexOf(focusedValue) + 1 || Infinity;
-		const bIndex = b.name.indexOf(focusedValue) + 1 || Infinity;
+		const lowercaseFocusedValue = focusedValue.toLowerCase();
+
+		// Replace `-1`s with `Infinity`s so no occurrence means last rather than first.
+		const aIndex = a.name.toLowerCase().indexOf(lowercaseFocusedValue) + 1 || Infinity;
+		const bIndex = b.name.toLowerCase().indexOf(lowercaseFocusedValue) + 1 || Infinity;
 
 		return aIndex - bIndex;
 	}

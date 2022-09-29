@@ -38,7 +38,7 @@ addCommand({
 			}
 
 			partialColor = partialColor.slice(0, 6);
-			autocompleteHex += partialColor;
+			autocompleteHex += partialColor.toLowerCase();
 		}
 
 		let remainingHexDigits = 6 - partialColor.length;
@@ -48,7 +48,7 @@ addCommand({
 
 		await interaction.respond(
 			[
-				{ value: 'hex', name: autocompleteHex },
+				{ value: autocompleteHex, name: autocompleteHex },
 				{ value: 'reset', name: 'reset' },
 				{ value: 'help', name: 'help' }
 			].sort(byOptionIndexOf(focusedValue))
