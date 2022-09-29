@@ -15,6 +15,7 @@ export type Command = {
 };
 
 const commands = new Collection<string, Command>();
+
 export default commands;
 
 export const addCommand = (command: Command) => {
