@@ -15,9 +15,9 @@ addCommand({
 				.setAutocomplete(true)
 		)),
 	execute: async interaction => {
-		const hexCode = interaction.options.getString('hex code')!;
+		const colorValue = interaction.options.getString('color')!;
 
-		console.log(hexCode);
+		console.log(colorValue);
 
 		return interaction.reply({ content: 'Slash commands aren\'t implemented yet. <:bikestunts:294644919874748418>', ephemeral: true });
 	},
