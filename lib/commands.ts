@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
-import type { SlashCommandBuilder, ChatInputCommandInteraction, InteractionResponse, AutocompleteInteraction, Interaction } from 'discord.js';
+import type { SlashCommandBuilder, ChatInputCommandInteraction, InteractionResponse, AutocompleteInteraction, Interaction, ApplicationCommandOptionChoiceData } from 'discord.js';
 import { Collection, Routes } from 'discord.js';
 import client from './client';
 import rest from './rest';
@@ -43,6 +43,17 @@ client.once('ready', async () => {
 		}
 	}).catch(console.error);
 });
+
+/** A sorting compare function which autocomplete options should use to sort by the index of the focused value. */
+export const byOptionIndexOf = (focusedValue: string) => (
+	(a: ApplicationCommandOptionChoiceData, b: ApplicationCommandOptionChoiceData) => {
+		// Replace `-1`s with `Infinity`s so missing indexes mean last rather than first.
+		const aIndex = a.name.indexOf(focusedValue) + 1 || Infinity;
+		const bIndex = b.name.indexOf(focusedValue) + 1 || Infinity;
+
+		return aIndex - bIndex;
+	}
+);
 
 const onInteractionCreate = async (interaction: Interaction) => {
 	if (interaction.isChatInputCommand()) {

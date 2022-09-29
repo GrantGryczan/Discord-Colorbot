@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { addCommand } from '../lib/commands';
+import { addCommand, byOptionIndexOf } from '../lib/commands';
 
 const PARTIAL_COLOR = /^#?[0-9a-f]{0,6}/i;
 
@@ -46,14 +46,12 @@ addCommand({
 			autocompleteHex += Math.floor(Math.random() * 16).toString(16);
 		}
 
-		const options = [
-			{ value: 'hex', name: autocompleteHex },
-			{ value: 'reset', name: 'reset' },
-			{ value: 'help', name: 'help' }
-		].sort((a, b) => (
-			b.name.indexOf(focusedValue) - a.name.indexOf(focusedValue)
-		));
-
-		await interaction.respond(options);
+		await interaction.respond(
+			[
+				{ value: 'hex', name: autocompleteHex },
+				{ value: 'reset', name: 'reset' },
+				{ value: 'help', name: 'help' }
+			].sort(byOptionIndexOf(focusedValue))
+		);
 	}
 });
