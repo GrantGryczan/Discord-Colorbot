@@ -20,7 +20,10 @@ addCommand({
 
 		console.log(colorValue);
 
-		return interaction.reply({ content: 'Slash commands aren\'t implemented yet. <:bikestunts:294644919874748418>', ephemeral: true });
+		return interaction.reply({
+			content: 'Slash commands aren\'t implemented yet. <:bikestunts:294644919874748418>',
+			ephemeral: true
+		});
 	},
 	autocomplete: async interaction => {
 		const focusedValue = interaction.options.getFocused();

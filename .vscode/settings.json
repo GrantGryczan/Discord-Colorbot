@@ -8,11 +8,5 @@
 	"files.exclude": {
 		// The env file should be hidden to avoid accidental misclicks. If you want to open it, open it from outside VS Code.
 		".env": true
-	},
-	"[javascript]": {
-		"editor.defaultFormatter": "dbaeumer.vscode-eslint"
-	},
-	"[typescript]": {
-		"editor.defaultFormatter": "dbaeumer.vscode-eslint"
 	}
 }
