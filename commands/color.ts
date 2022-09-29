@@ -7,6 +7,7 @@ addCommand({
 	data: new SlashCommandBuilder()
 		.setName('color')
 		.setDescription('Set your username color')
+		.setDMPermission(false)
 		.addStringOption(option => (
 			option
 				.setRequired(true)
