@@ -24,7 +24,6 @@ export const addCommand = (command: Command) => {
 client.once('ready', async () => {
 	const commandsPath = path.join(process.cwd(), 'commands');
 	const commandFilenames: string[] = await fs.readdir(commandsPath).catch(() => []);
-	const commandCount = commandFilenames.length;
 	await Promise.all(
 		commandFilenames.map(async commandFilename => {
 			const commandPath = path.join(commandsPath, commandFilename);
@@ -36,9 +35,9 @@ client.once('ready', async () => {
 		Routes.applicationCommands(client.application!.id),
 		{ body: commands.map(command => command.data.toJSON()) }
 	).then(() => {
-		console.log(`Loaded ${commandCount} global commands`);
+		console.log(`Loaded ${commands.size} global command(s)`);
 
-		if (commandCount !== 0) {
+		if (commands.size !== 0) {
 			client.on('interactionCreate', onInteractionCreate);
 		}
 	}).catch(console.error);
