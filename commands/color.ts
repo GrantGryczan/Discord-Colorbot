@@ -11,7 +11,7 @@ addCommand({
 			option
 				.setRequired(true)
 				.setName('code')
-				.setDescription('The hex color code to set your username to, or "reset" to remove your hex color role')
+				.setDescription('The hex color code to set your username to, or `reset` to remove your hex color role')
 				.setAutocomplete(true)
 		)),
 	execute: async interaction => {
@@ -33,7 +33,7 @@ addCommand({
 
 			if (partialColor.startsWith('#')) {
 				partialColor = partialColor.slice(1);
-			} else {
+			} else if (partialColor.length !== 0) {
 				autocompleteHex = '';
 			}
 
