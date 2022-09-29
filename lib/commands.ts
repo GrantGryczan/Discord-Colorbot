@@ -44,6 +44,9 @@ client.once('ready', async () => {
 	}).catch(console.error);
 });
 
+/** Converts a `string` to a `{ value: string, name: string }` command option object. */
+export const stringToOption = (value: string) => ({ value, name: value });
+
 /** A sorting compare function which autocomplete options should use to sort by the index of the focused value. */
 export const byOptionIndexOf = (focusedValue: string) => (
 	(a: ApplicationCommandOptionChoiceData, b: ApplicationCommandOptionChoiceData) => {
