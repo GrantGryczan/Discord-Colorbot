@@ -45,7 +45,7 @@ addCommand({
 		const optionStrings: string[] = [];
 
 		if (partialColor.length === 3) {
-			optionStrings.push(partialColor);
+			optionStrings.push(autocompleteHex);
 		}
 
 		let remainingHexDigits = 6 - partialColor.length;
