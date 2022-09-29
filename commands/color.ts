@@ -11,7 +11,7 @@ addCommand({
 			option
 				.setRequired(true)
 				.setName('color')
-				.setDescription('The hex color code to set your username to, "reset" to remove your hex color role, or "help" for more info')
+				.setDescription('A hex code to set as your color, "reset" to remove your color role, or "help" for info on hex codes')
 				.setAutocomplete(true)
 		)),
 	execute: async interaction => {
