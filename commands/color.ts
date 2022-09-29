@@ -11,7 +11,7 @@ addCommand({
 			option
 				.setRequired(true)
 				.setName('color')
-				.setDescription('The hex color code to set your username to, or "reset" to remove your hex color role')
+				.setDescription('The hex color code to set your username to, "reset" to remove your hex color role, or "help" for more info')
 				.setAutocomplete(true)
 		)),
 	execute: async interaction => {
@@ -48,12 +48,11 @@ addCommand({
 
 		const options = [
 			{ value: 'hex', name: autocompleteHex },
-			{ value: 'reset', name: 'reset' }
-		];
-
-		if (focusedValue.startsWith('r')) {
-			options.reverse();
-		}
+			{ value: 'reset', name: 'reset' },
+			{ value: 'help', name: 'help' }
+		].sort((a, b) => (
+			b.name.indexOf(focusedValue) - a.name.indexOf(focusedValue)
+		));
 
 		await interaction.respond(options);
 	}
