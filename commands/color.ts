@@ -10,7 +10,7 @@ addCommand({
 		.addStringOption(option => (
 			option
 				.setRequired(true)
-				.setName('code')
+				.setName('color')
 				.setDescription('The hex color code to set your username to, or `reset` to remove your hex color role')
 				.setAutocomplete(true)
 		)),
