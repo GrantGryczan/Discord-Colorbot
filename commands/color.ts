@@ -42,13 +42,21 @@ addCommand({
 			autocompleteHex += partialColor.toLowerCase();
 		}
 
+		const optionStrings: string[] = [];
+
+		if (partialColor.length === 3) {
+			optionStrings.push(partialColor);
+		}
+
 		let remainingHexDigits = 6 - partialColor.length;
 		while (remainingHexDigits--) {
 			autocompleteHex += Math.floor(Math.random() * 16).toString(16);
 		}
 
+		optionStrings.push(autocompleteHex, 'reset', 'help');
+
 		await interaction.respond(
-			[autocompleteHex, 'reset', 'help']
+			optionStrings
 				.map(stringToOption)
 				.sort(byOptionIndexOf(focusedValue))
 		);
