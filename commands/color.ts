@@ -19,7 +19,7 @@ addCommand({
 
 		console.log(hexCode);
 
-		return interaction.reply({ content: 'What up', ephemeral: true });
+		return interaction.reply({ content: 'Slash commands aren\'t implemented yet. <:bikestunts:294644919874748418>', ephemeral: true });
 	},
 	autocomplete: async interaction => {
 		const focusedValue = interaction.options.getFocused();
