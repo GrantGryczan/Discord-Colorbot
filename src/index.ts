@@ -3,6 +3,7 @@ dotenv.config();
 
 import { Client, GatewayIntentBits } from 'discord.js';
 import commands from '../lib/commands';
+import isColorRole from './isColorRole';
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
 
@@ -16,7 +17,7 @@ client.once('ready', async () => {
 			guild.members.fetch(),
 			// Delete all unused hex color roles.
 			...guild.roles.cache
-				.filter(role => role.members.size === 0)
+				.filter(role => isColorRole(role) && role.members.size === 0)
 				// TODO: Catch errors.
 				.map(role => role.delete())
 		]))
