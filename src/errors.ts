@@ -1,5 +1,8 @@
 import type { ChatInputCommandInteraction, Role } from 'discord.js';
 
+const MISSING_ACCESS = 50001;
+const MISSING_PERMISSIONS = 50013;
+
 /**
  * Returns a promise rejection handler for role management. A role argument must also be specified if this should catch errors caused by incorrect role positions.
  *
@@ -11,7 +14,7 @@ export const roleManagementErrors = (
 	interaction: ChatInputCommandInteraction<'cached'>,
 	role?: Role
 ) => (error: any) => new Promise<never>(async (_, reject) => {
-	if (error.message === 'Missing Access') {
+	if (error.code === MISSING_ACCESS) {
 		await interaction.reply({
 			content: '**Error:** I am missing the **Manage Roles** permission.\n\nPlease inform a server admin of this issue.',
 			ephemeral: true
@@ -20,7 +23,7 @@ export const roleManagementErrors = (
 		return;
 	}
 
-	if (role && error.message === 'Missing Permissions') {
+	if (role && error.code === MISSING_PERMISSIONS) {
 		const me = await interaction.guild.members.fetchMe();
 
 		if (me.roles.highest.position < role.position) {

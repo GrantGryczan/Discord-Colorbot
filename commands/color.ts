@@ -1,10 +1,36 @@
-import type { HexColorString } from 'discord.js';
+import type { HexColorString, Role } from 'discord.js';
 import { SlashCommandBuilder, bold, escapeMarkdown } from 'discord.js';
 import commands, { byOptionIndexOf, stringToOption } from '../lib/commands';
 import removeColorRoleFromMember, { addColorRoleToMember, getOrCreateColorRole, isColorRole } from '../src/color-roles';
 
+const MAXIMUM_GUILD_ROLES_REACHED = 30005;
+
 const COLOR = /^#?(?:([\da-f])([\da-f])([\da-f])|([\da-f]{6}))$/i;
 const PARTIAL_COLOR = /^#?[\da-f]{0,6}/i;
+
+/** An object of the red, green, and blue values that make up a color, each 0 to 255. */
+type ColorRGB = { red: number, green: number, blue: number };
+
+type ColorRoleWithRGB = {
+	role: Role,
+	color: ColorRGB
+};
+
+/** The number of bits in a hex digit. */
+const HEX_DIGIT_BITS = 4;
+
+const getColorRGB = (colorNumber: number): ColorRGB => ({
+	red: colorNumber >> 4 * HEX_DIGIT_BITS,
+	green: (colorNumber & 0x00ff00) >> 2 * HEX_DIGIT_BITS,
+	blue: colorNumber & 0x0000ff
+});
+
+/** Gets the squared distance between two 3D points in RGB space. */
+const getRGBDistanceSquared = (a: ColorRGB, b: ColorRGB) => (
+	(a.red - b.red) ** 2
+	+ (a.green - b.green) ** 2
+	+ (a.blue - b.blue) ** 2
+);
 
 const normalizeColor = (color: string) => color.replace(COLOR, '#$1$1$2$2$3$3$4').toLowerCase() as HexColorString;
 
@@ -45,14 +71,48 @@ commands.add({
 			await removeColorRoleFromMember(interaction);
 
 			const color = normalizeColor(value);
-			const colorRole = await getOrCreateColorRole(interaction, color)
-				.catch(error => new Promise<never>((_, reject) => {
-					console.log('testing', error.message);
 
-					reject(error);
-				}));
+			return getOrCreateColorRole(interaction, color)
+				.then(colorRole => addColorRoleToMember(interaction, colorRole))
+				.catch(async error => {
+					if (error.code !== MAXIMUM_GUILD_ROLES_REACHED) {
+						throw error;
+					}
 
-			return addColorRoleToMember(interaction, colorRole);
+					const rolesWithRGB: ColorRoleWithRGB[] = [];
+
+					const colorNumber = Number.parseInt(color.slice(1), 16);
+					const colorRGB = getColorRGB(colorNumber);
+
+					for (const role of interaction.guild.roles.cache.values()) {
+						if (!isColorRole(role)) {
+							continue;
+						}
+
+						rolesWithRGB.push({
+							role,
+							color: getColorRGB(role.color)
+						});
+					}
+
+					return interaction.reply({
+						content: 'The maximum role limit has been reached and no more color roles can be created. If you want, you can choose a color someone else is already using. Below are some similar colors I found to the one you entered.',
+						embeds: [{
+							description: (
+								rolesWithRGB
+									.sort((a, b) => (
+										getRGBDistanceSquared(a.color, colorRGB)
+										- getRGBDistanceSquared(b.color, colorRGB)
+									))
+									.slice(0, 20)
+									.map(roleWithRGB => roleWithRGB.role)
+									.join(' ')
+							),
+							color: colorNumber
+						}],
+						ephemeral: true
+					});
+				});
 		}
 
 		let helpMessage = 'If you don\'t know how hex color codes work, you can generate one using a [color picker](https://www.google.com/search?q=color+picker).';
