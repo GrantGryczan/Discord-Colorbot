@@ -79,7 +79,7 @@ commands.add({
 						throw error;
 					}
 
-					const rolesWithRGB: ColorRoleWithRGB[] = [];
+					const colorRolesWithRGB: ColorRoleWithRGB[] = [];
 
 					const colorNumber = Number.parseInt(color.slice(1), 16);
 					const colorRGB = getColorRGB(colorNumber);
@@ -89,9 +89,16 @@ commands.add({
 							continue;
 						}
 
-						rolesWithRGB.push({
+						colorRolesWithRGB.push({
 							role,
 							color: getColorRGB(role.color)
+						});
+					}
+
+					if (colorRolesWithRGB.length === 0) {
+						return interaction.reply({
+							content: '**Error:** The maximum role limit has been reached and no color roles can be created.',
+							ephemeral: true
 						});
 					}
 
@@ -99,7 +106,7 @@ commands.add({
 						content: 'The maximum role limit has been reached and no more color roles can be created. If you want, you can choose a color someone else is already using. Below are some similar colors I found to the one you entered.',
 						embeds: [{
 							description: (
-								rolesWithRGB
+								colorRolesWithRGB
 									.sort((a, b) => (
 										getRGBDistanceSquared(a.color, colorRGB)
 										- getRGBDistanceSquared(b.color, colorRGB)
