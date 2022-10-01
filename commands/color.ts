@@ -1,9 +1,12 @@
-import { SlashCommandBuilder } from 'discord.js';
-import { addCommand, byOptionIndexOf, stringToOption } from '../lib/commands';
+import { SlashCommandBuilder, bold, escapeMarkdown } from 'discord.js';
+import commands, { byOptionIndexOf, stringToOption } from '../lib/commands';
+import isColorRole from '../src/isColorRole';
+import removeColorRoleFromMember from '../src/removeColorRoleFromMember';
 
-const PARTIAL_COLOR = /^#?[0-9a-f]{0,6}/i;
+const COLOR = /^#?(?:([\da-f])([\da-f])([\da-f])|([\da-f]{6}))$/i;
+const PARTIAL_COLOR = /^#?[\da-f]{0,6}/i;
 
-addCommand({
+commands.add({
 	data: new SlashCommandBuilder()
 		.setName('color')
 		.setDescription('Set your username color')
@@ -11,19 +14,46 @@ addCommand({
 		.addStringOption(option => (
 			option
 				.setRequired(true)
-				.setName('color')
+				.setName('value')
 				.setDescription('A hex code to set as your color, "reset" to remove your color role, or "help" for info on hex codes')
 				.setAutocomplete(true)
 		)),
 	execute: async interaction => {
-		const colorValue = interaction.options.getString('color')!;
+		const value = interaction.options.getString('value')!;
 
-		console.log(colorValue);
+		if (value === 'reset') {
+			const colorRole = interaction.member.roles.cache.find(isColorRole);
 
-		return interaction.reply({
-			content: 'Slash commands aren\'t implemented yet. <:bikestunts:294644919874748418>',
-			ephemeral: true
-		});
+			if (!colorRole) {
+				return interaction.reply({
+					content: 'You don\'t have a color role to reset.\n\n_Color roles are always named starting with a `#` followed by six characters, each `0` to `9` or lowercase `a` to `f`._',
+					ephemeral: true
+				});
+			}
+
+			await removeColorRoleFromMember(interaction, colorRole);
+
+			return interaction.reply({
+				content: `Your **${colorRole.name}** color role has been removed.`,
+				ephemeral: true
+			});
+		}
+
+		if (COLOR.test(value)) {
+			const color = value.replace(COLOR, '#$1$1$2$2$3$3$4').toLowerCase();
+
+			return interaction.reply({
+				content: `Slash commands aren't implemented yet. <:bikestunts:294644919874748418>\n\n${color}`,
+				ephemeral: true
+			});
+		}
+
+		let helpMessage = 'If you don\'t know how hex color codes work, you can generate one using a [color picker](https://www.google.com/search?q=color+picker).';
+		if (value !== 'help') {
+			helpMessage = `${bold(escapeMarkdown(value.replace(/\\/g, '\\\\')))} is not a valid hex color code! ${helpMessage}`;
+		}
+
+		return interaction.reply({ content: helpMessage, ephemeral: true });
 	},
 	autocomplete: async interaction => {
 		const focusedValue = interaction.options.getFocused();

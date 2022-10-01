@@ -2,11 +2,16 @@
 	"files.eol": "\n",
 	"editor.insertSpaces": false,
 	"eslint.format.enable": true,
-	"editor.defaultFormatter": null,
 	"javascript.preferences.quoteStyle": "single",
 	"typescript.preferences.quoteStyle": "single",
 	"files.exclude": {
 		// The env file should be hidden to avoid accidental misclicks. If you want to open it, open it from outside VS Code.
 		".env": true
+	},
+	"[javascript]": {
+		"editor.defaultFormatter": "dbaeumer.vscode-eslint"
+	},
+	"[typescript]": {
+		"editor.defaultFormatter": "dbaeumer.vscode-eslint"
 	}
 }

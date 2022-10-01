@@ -1,53 +1,99 @@
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
-import type { SlashCommandBuilder, ChatInputCommandInteraction, InteractionResponse, AutocompleteInteraction, Interaction, ApplicationCommandOptionChoiceData } from 'discord.js';
+import type { SlashCommandBuilder, ChatInputCommandInteraction, InteractionResponse, AutocompleteInteraction, Interaction, ApplicationCommandOptionChoiceData, Client } from 'discord.js';
 import { Collection, Routes } from 'discord.js';
-import client from './client';
-import rest from './rest';
 
-export type Command = {
+export type SlashCommand = {
 	/** A `SlashCommandBuilder` for the command. */
 	data: Pick<SlashCommandBuilder, 'toJSON' | 'name'>,
 	/** Handles a user entering the command. */
-	execute: (interaction: ChatInputCommandInteraction) => Promise<InteractionResponse>,
+	execute: (interaction: ChatInputCommandInteraction<'cached'>) => Promise<InteractionResponse>,
 	/** Handles autocomplete interactions for the command. */
-	autocomplete?: (interaction: AutocompleteInteraction) => Promise<void>
+	autocomplete?: (interaction: AutocompleteInteraction<'cached'>) => Promise<void>
 };
 
-const commands = new Collection<string, Command>();
+const commandCollection = new Collection<string, SlashCommand>();
 
-export default commands;
-
-export const addCommand = (command: Command) => {
-	commands.set(command.data.name, command);
+/** Adds a new global slash command to your bot. */
+const add = (command: SlashCommand) => {
+	commandCollection.set(command.data.name, command);
 };
 
-client.once('ready', async () => {
-	const commandsPath = path.join(process.cwd(), 'commands');
-	const commandFilenames: string[] = await fs.readdir(commandsPath).catch(() => []);
-	await Promise.all(
-		commandFilenames.map(async commandFilename => {
+/**
+ * Once the Discord client is ready, loads all the modules in your commands directory (which defaults to `path.join(process.cwd(), 'commands')`).
+ *
+ * Each module in your commands directory can then call `commands.add` to add a command for this function to load.
+ *
+ * Resolves when commands are fully loaded.
+ */
+const load = (
+	client: Client,
+	commandsPath = path.join(process.cwd(), 'commands')
+) => new Promise<void>(resolve => {
+	client.once('ready', async client => {
+		const commandFilenames = await fs.readdir(commandsPath);
+		const commandImports = [];
+
+		for (const commandFilename of commandFilenames) {
+			if (!/\.[mc]?[jt]s$/.test(commandFilename)) {
+				continue;
+			}
+
 			const commandPath = path.join(commandsPath, commandFilename);
-			await import(commandPath);
-		})
-	);
+			const commandImport = import(commandPath);
+			commandImports.push(commandImport);
+		}
 
-	rest.put(
-		Routes.applicationCommands(client.application!.id),
-		{ body: commands.map(command => command.data.toJSON()) }
-	).then(() => {
-		console.log(`Loaded ${commands.size} global command(s)`);
+		await Promise.all(commandImports);
 
-		if (commands.size !== 0) {
+		const applicationCommands = Routes.applicationCommands(client.application.id);
+		await client.rest.put(applicationCommands, {
+			body: commandCollection.map(command => command.data.toJSON())
+		});
+
+		if (commandCollection.size !== 0) {
 			client.on('interactionCreate', onInteractionCreate);
 		}
-	}).catch(console.error);
+
+		resolve();
+	});
 });
+
+const onInteractionCreate = (interaction: Interaction) => {
+	if (!interaction.inCachedGuild()) {
+		return;
+	}
+
+	if (interaction.isChatInputCommand()) {
+		const command = commandCollection.get(interaction.commandName);
+
+		if (!command) {
+			return;
+		}
+
+		command.execute(interaction).catch(error => {
+			console.error(error);
+			interaction.reply({ content: 'An error occurred while executing the command.', ephemeral: true });
+		});
+	} else if (interaction.isAutocomplete()) {
+		const command = commandCollection.get(interaction.commandName);
+
+		if (!(command?.autocomplete)) {
+			return;
+		}
+
+		command.autocomplete(interaction).catch(console.error);
+	}
+};
+
+const commands = { add, load };
+
+export default commands;
 
 /** Converts a `string` to a `{ value: string, name: string }` command option object. */
 export const stringToOption = (value: string) => ({ value, name: value });
 
-/** A sorting compare function which autocomplete options should use to sort by the index of the focused value. */
+/** A sorting compare function which autocomplete options should use to sort by the index of the focused value in each option's `name`. */
 export const byOptionIndexOf = (focusedValue: string) => (
 	(a: ApplicationCommandOptionChoiceData, b: ApplicationCommandOptionChoiceData) => {
 		const lowercaseFocusedValue = focusedValue.toLowerCase();
@@ -59,26 +105,3 @@ export const byOptionIndexOf = (focusedValue: string) => (
 		return aIndex - bIndex;
 	}
 );
-
-const onInteractionCreate = async (interaction: Interaction) => {
-	if (interaction.isChatInputCommand()) {
-		const command = commands.get(interaction.commandName);
-
-		if (!command) {
-			return;
-		}
-
-		command.execute(interaction).catch(error => {
-			console.error(error);
-			interaction.reply({ content: 'An error occurred while executing the command.', ephemeral: true });
-		});
-	} else if (interaction.isAutocomplete()) {
-		const command = commands.get(interaction.commandName);
-
-		if (!(command?.autocomplete)) {
-			return;
-		}
-
-		command.autocomplete(interaction).catch(console.error);
-	}
-};
