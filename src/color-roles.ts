@@ -44,7 +44,7 @@ export const addColorRoleToMember = async (
 		.catch(roleManagementErrors(interaction, colorRole));
 
 	return interaction.reply({
-		content: `Your color has been set to ${colorRole}.`,
+		content: 'Your color has been set:',
 		embeds: [{
 			title: colorRole.name,
 			color: colorRole.color,
