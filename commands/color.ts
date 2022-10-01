@@ -1,10 +1,12 @@
+import type { HexColorString } from 'discord.js';
 import { SlashCommandBuilder, bold, escapeMarkdown } from 'discord.js';
 import commands, { byOptionIndexOf, stringToOption } from '../lib/commands';
-import isColorRole from '../src/isColorRole';
-import removeColorRoleFromMember from '../src/removeColorRoleFromMember';
+import removeColorRoleFromMember, { addColorRoleToMember, getOrCreateColorRole, isColorRole } from '../src/color-roles';
 
 const COLOR = /^#?(?:([\da-f])([\da-f])([\da-f])|([\da-f]{6}))$/i;
 const PARTIAL_COLOR = /^#?[\da-f]{0,6}/i;
+
+const normalizeColor = (color: string) => color.replace(COLOR, '#$1$1$2$2$3$3$4').toLowerCase() as HexColorString;
 
 commands.add({
 	data: new SlashCommandBuilder()
@@ -40,12 +42,17 @@ commands.add({
 		}
 
 		if (COLOR.test(value)) {
-			const color = value.replace(COLOR, '#$1$1$2$2$3$3$4').toLowerCase();
+			await removeColorRoleFromMember(interaction);
 
-			return interaction.reply({
-				content: `Slash commands aren't implemented yet. <:bikestunts:294644919874748418>\n\n${color}`,
-				ephemeral: true
-			});
+			const color = normalizeColor(value);
+			const colorRole = await getOrCreateColorRole(interaction, color)
+				.catch(error => new Promise<never>((_, reject) => {
+					console.log('testing', error.message);
+
+					reject(error);
+				}));
+
+			return addColorRoleToMember(interaction, colorRole);
 		}
 
 		let helpMessage = 'If you don\'t know how hex color codes work, you can generate one using a [color picker](https://www.google.com/search?q=color+picker).';

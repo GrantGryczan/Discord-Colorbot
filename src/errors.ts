@@ -1,16 +1,16 @@
 import type { ChatInputCommandInteraction, Role } from 'discord.js';
 
 /**
- * Returns a promise rejection handler for when the bot needs the "Manage Roles" permission.
+ * Returns a promise rejection handler for role management. A role argument must also be specified if this should catch errors caused by incorrect role positions.
  *
- * If the handler catches an error, it replies to the specified interaction with an error message.
+ * If the handler catches an error it expects, it replies to the specified interaction with a corresponding error message and never resolves.
  *
- * A role argument must also be specified if this should catch errors caused by incorrect role positions.
+ * If the handler catches an error it doesn't expect, it throws it again.
  */
 export const roleManagementErrors = (
 	interaction: ChatInputCommandInteraction<'cached'>,
 	role?: Role
-) => async (error: any) => {
+) => (error: any) => new Promise<never>(async (_, reject) => {
 	if (error.message === 'Missing Access') {
 		await interaction.reply({
 			content: '**Error:** I am missing the **Manage Roles** permission.\n\nPlease inform a server admin of this issue.',
@@ -33,5 +33,5 @@ export const roleManagementErrors = (
 		}
 	}
 
-	throw error;
-};
+	reject(error);
+});
