@@ -3,7 +3,7 @@ dotenv.config();
 
 import { Client, GatewayIntentBits } from 'discord.js';
 import commands from '../lib/commands';
-import isColorRole from './isColorRole';
+import { isColorRole } from './color-roles';
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
 
