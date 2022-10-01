@@ -11,16 +11,19 @@ commands.load(client);
 
 client.once('ready', async () => {
 	await Promise.all(
-		client.guilds.cache.map(guild => Promise.all([
+		client.guilds.cache.map(async guild => {
 			// Cache all guild members so roles' member counts are accurate.
 			// Discord.js will keep members updated automatically from now on.
-			guild.members.fetch(),
+			await guild.members.fetch();
+
 			// Delete all unused hex color roles.
-			...guild.roles.cache
-				.filter(role => isColorRole(role) && role.members.size === 0)
-				// TODO: Catch errors.
-				.map(role => role.delete())
-		]))
+			await Promise.all([
+				guild.roles.cache
+					.filter(role => isColorRole(role) && role.members.size === 0)
+					// TODO: Catch errors.
+					.map(role => role.delete())
+			]);
+		})
 	);
 
 	console.log('Ready!');
