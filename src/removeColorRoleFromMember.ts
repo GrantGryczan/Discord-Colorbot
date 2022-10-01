@@ -1,5 +1,5 @@
 import type { ChatInputCommandInteraction, Role } from 'discord.js';
-import { roleManagementErrors } from '../lib/errors';
+import { roleManagementErrors } from './errors';
 
 /**
  * Removes a color role from an interaction's member, deleting the role if they were the only member who had it.
