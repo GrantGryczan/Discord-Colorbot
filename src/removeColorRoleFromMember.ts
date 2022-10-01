@@ -9,11 +9,11 @@ import { roleManagementErrors } from '../lib/errors';
 const removeColorRoleFromMember = (
 	interaction: ChatInputCommandInteraction<'cached'>,
 	role: Role
-) => new Promise<void>(resolve => {
-	interaction.member.roles.remove(role)
-		.then(() => {
+) => new Promise<void>(async resolve => {
+	await interaction.member.roles.remove(role)
+		.then(async () => {
 			if (role.members.size === 0) {
-				role.delete()
+				await role.delete()
 					.then(() => {
 						resolve();
 					})
