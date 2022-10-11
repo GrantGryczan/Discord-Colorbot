@@ -124,7 +124,7 @@ commands.add({
 
 		let helpMessage = 'If you don\'t know how hex color codes work, you can generate one using a [color picker](https://www.google.com/search?q=color+picker).';
 		if (value !== 'help') {
-			helpMessage = `${bold(escapeMarkdown(value.replace(/\\/g, '\\\\')))} is not a valid hex color code! ${helpMessage}`;
+			helpMessage = `${bold(escapeMarkdown(value))} is not a valid hex color code! ${helpMessage}`;
 		}
 
 		return interaction.reply({ content: helpMessage, ephemeral: true });
