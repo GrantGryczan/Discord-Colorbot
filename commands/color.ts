@@ -1,7 +1,7 @@
 import type { HexColorString, Role } from 'discord.js';
 import { SlashCommandBuilder, bold, escapeMarkdown } from 'discord.js';
 import commands, { byOptionIndexOf, stringToOption } from '../lib/commands';
-import removeColorRoleFromMember, { addColorRoleToMember, getOrCreateColorRole, isColorRole } from '../src/color-roles';
+import removeColorRoleFromMember, { addColorToMember, isColorRole } from '../src/color-roles';
 
 const MAXIMUM_GUILD_ROLES_REACHED = 30005;
 
@@ -70,19 +70,20 @@ commands.add({
 		if (COLOR.test(value)) {
 			const color = normalizeColor(value);
 
-			return getOrCreateColorRole(interaction, color)
-				.then(async colorRole => {
-					const oldColorRole = interaction.member.roles.cache.find(isColorRole);
+			const oldColorRole = interaction.member.roles.cache.find(isColorRole);
+			if (oldColorRole) {
+				// Remove the old color role first in case it's necessary to make room for the new one.
+				await removeColorRoleFromMember(interaction, oldColorRole);
+			}
 
-					const response = await addColorRoleToMember(interaction, colorRole);
-
+			return addColorToMember(interaction, color)
+				.catch(async error => {
 					if (oldColorRole) {
-						await removeColorRoleFromMember(interaction, oldColorRole);
+						// Try to restore their old color role since they didn't get the new one.
+						await addColorToMember(interaction, oldColorRole.hexColor)
+							.catch(() => {});
 					}
 
-					return response;
-				})
-				.catch(async error => {
 					if (error.code !== MAXIMUM_GUILD_ROLES_REACHED) {
 						throw error;
 					}

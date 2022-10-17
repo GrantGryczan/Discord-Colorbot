@@ -17,29 +17,21 @@ export const createColorRole = async (
 	return colorRole;
 };
 
-/** Gets a color role by hex color code, or creates one if no existing color role is found. */
-export const getOrCreateColorRole = async (
+const DISCORD_BACKGROUND_COLOR = '#36393e';
+
+/** Adds a color role of the specified color to an interaction's member. Resolves with a corresponding response message to the interaction. */
+export const addColorToMember = async (
 	interaction: ChatInputCommandInteraction<'cached'>,
 	color: HexColorString
 ) => {
-	const existingColorRole = interaction.guild.roles.cache.find(
+	let colorRole = interaction.guild.roles.cache.find(
 		role => isColorRole(role) && role.name === color
 	);
 
-	if (existingColorRole) {
-		return existingColorRole;
+	if (!colorRole) {
+		colorRole = await createColorRole(interaction, color);
 	}
 
-	return createColorRole(interaction, color);
-};
-
-const DISCORD_BACKGROUND_COLOR = '#36393e';
-
-/** Adds the specified color role to an interaction's member. Resolves with a corresponding response message to the interaction. */
-export const addColorRoleToMember = async (
-	interaction: ChatInputCommandInteraction<'cached'>,
-	colorRole: Role
-) => {
 	await interaction.member.roles.add(colorRole)
 		.catch(roleManagementErrors(interaction, colorRole));
 
