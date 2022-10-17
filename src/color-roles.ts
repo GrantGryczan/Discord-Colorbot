@@ -17,9 +17,7 @@ export const createColorRole = async (
 	return colorRole;
 };
 
-const DISCORD_BACKGROUND_COLOR = '#36393e';
-
-/** Adds a color role of the specified color to an interaction's member. Resolves with a corresponding response message to the interaction. */
+/** Adds a color role of the specified color to an interaction's member. Resolves with the added color role. */
 export const addColorToMember = async (
 	interaction: ChatInputCommandInteraction<'cached'>,
 	color: HexColorString
@@ -35,17 +33,7 @@ export const addColorToMember = async (
 	await interaction.member.roles.add(colorRole)
 		.catch(roleManagementErrors(interaction, colorRole));
 
-	return interaction.reply({
-		content: 'Your color has been set:',
-		embeds: [{
-			title: colorRole.name,
-			color: colorRole.color,
-			...colorRole.name === DISCORD_BACKGROUND_COLOR && {
-				description: 'Why?'
-			}
-		}],
-		ephemeral: true
-	});
+	return colorRole;
 };
 
 /** Removes the specified color role from an interaction's member, deleting the role if they were the only member who had it. */

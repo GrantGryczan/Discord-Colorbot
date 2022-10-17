@@ -8,6 +8,8 @@ const MAXIMUM_GUILD_ROLES_REACHED = 30005;
 const COLOR = /^#?(?:([\da-f])([\da-f])([\da-f])|([\da-f]{6}))$/i;
 const PARTIAL_COLOR = /^#?[\da-f]{0,6}/i;
 
+const DISCORD_BACKGROUND_COLOR = '#36393e';
+
 /** An object of the red, green, and blue values that make up a color, each 0 to 255. */
 type ColorRGB = { red: number, green: number, blue: number };
 
@@ -77,6 +79,17 @@ commands.add({
 			}
 
 			return addColorToMember(interaction, color)
+				.then(colorRole => interaction.reply({
+					content: 'Your color has been set:',
+					embeds: [{
+						title: colorRole.name,
+						color: colorRole.color,
+						...colorRole.name === DISCORD_BACKGROUND_COLOR && {
+							description: 'Why?'
+						}
+					}],
+					ephemeral: true
+				}))
 				.catch(async error => {
 					if (oldColorRole) {
 						// Try to restore their old color role since they didn't get the new one.
