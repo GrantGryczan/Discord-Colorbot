@@ -20,7 +20,7 @@ const add = (command: SlashCommand) => {
 };
 
 /**
- * Once the Discord client is ready, loads all the modules in your commands directory (which defaults to `path.join(process.cwd(), 'commands')`).
+ * Loads all the modules in your commands directory (which defaults to `path.join(process.cwd(), 'commands')`) once the Discord client is ready.
  *
  * Each module in your commands directory can then call `commands.add` to add a command for this function to load.
  *
