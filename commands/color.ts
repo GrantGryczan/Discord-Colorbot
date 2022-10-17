@@ -70,11 +70,16 @@ commands.add({
 		if (COLOR.test(value)) {
 			const color = normalizeColor(value);
 
-			const oldColorRole = interaction.member.roles.cache.find(isColorRole);
-
 			return getOrCreateColorRole(interaction, color)
-				.then(colorRole => addColorRoleToMember(interaction, colorRole))
-				.then(() => removeColorRoleFromMember(interaction, oldColorRole))
+				.then(async colorRole => {
+					const oldColorRole = interaction.member.roles.cache.find(isColorRole);
+
+					const response = await addColorRoleToMember(interaction, colorRole);
+
+					await removeColorRoleFromMember(interaction, oldColorRole);
+
+					return response;
+				})
 				.catch(async error => {
 					if (error.code !== MAXIMUM_GUILD_ROLES_REACHED) {
 						throw error;
