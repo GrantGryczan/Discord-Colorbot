@@ -56,19 +56,11 @@ export const addColorRoleToMember = async (
 	});
 };
 
-/**
- * Removes the specified color role from an interaction's member, deleting the role if they were the only member who had it.
- *
- * If no color role is specified, a color role on the member is used automatically. If none is found, this function does nothing.
- */
+/** Removes the specified color role from an interaction's member, deleting the role if they were the only member who had it. */
 const removeColorRoleFromMember = async (
 	interaction: ChatInputCommandInteraction<'cached'>,
-	colorRole = interaction.member.roles.cache.find(isColorRole)
+	colorRole: Role
 ) => {
-	if (!colorRole) {
-		return;
-	}
-
 	await interaction.member.roles.remove(colorRole)
 		.catch(roleManagementErrors(interaction, colorRole));
 

@@ -76,7 +76,9 @@ commands.add({
 
 					const response = await addColorRoleToMember(interaction, colorRole);
 
-					await removeColorRoleFromMember(interaction, oldColorRole);
+					if (oldColorRole) {
+						await removeColorRoleFromMember(interaction, oldColorRole);
+					}
 
 					return response;
 				})
