@@ -58,7 +58,7 @@ const purgeConfirmButton = interactions.add({
 
 			if (deletedColorRoleCount === colorRoles.size) {
 				await setFollowUp({
-					content: `Deleted ${colorRoles.size} color roles.`
+					content: 'Deleted all color roles.'
 				});
 				return;
 			}
