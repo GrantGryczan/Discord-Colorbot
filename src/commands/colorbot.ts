@@ -60,10 +60,10 @@ const purgeConfirmButton = interactions.add({
 				// TODO: Actually delete the role.
 				await new Promise<void>((resolve, reject) => {
 					setTimeout(() => {
-						resolve();
-
 						if (Math.random() < 0.002) {
 							reject({ code: 50001 });
+						} else {
+							resolve();
 						}
 					}, Math.random() * 5000);
 				})
