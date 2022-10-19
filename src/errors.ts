@@ -1,4 +1,4 @@
-import type { ChatInputCommandInteraction, Role } from 'discord.js';
+import type { Interaction, InteractionReplyOptions, Role } from 'discord.js';
 
 const MISSING_ACCESS = 50001;
 const MISSING_PERMISSIONS = 50013;
@@ -11,11 +11,13 @@ const MISSING_PERMISSIONS = 50013;
  * If the handler catches an error it doesn't expect, it throws it again.
  */
 export const roleManagementErrors = (
-	interaction: ChatInputCommandInteraction<'cached'>,
-	role?: Role
+	interaction: Extract<Interaction<'cached'>, { reply: {} }>,
+	role?: Role,
+	/** The function to call to send the error message. Defaults to `interaction.reply`. */
+	replyFunction: (options: InteractionReplyOptions) => unknown = interaction.reply.bind(interaction)
 ) => (error: any) => new Promise<never>(async (_, reject) => {
 	if (error.code === MISSING_ACCESS) {
-		await interaction.reply({
+		await replyFunction({
 			content: '**Error:** I am missing the **Manage Roles** permission.\n\nPlease inform a server admin of this issue.',
 			ephemeral: true
 		});
@@ -27,7 +29,7 @@ export const roleManagementErrors = (
 		const me = await interaction.guild.members.fetchMe();
 
 		if (me.roles.highest.position < role.position) {
-			await interaction.reply({
+			await replyFunction({
 				content: '**Error:** For me to be able to manage color roles, I must have at least one role above all the color roles in the server\'s role list.\n\nPlease inform a server admin of this issue.',
 				ephemeral: true
 			});
