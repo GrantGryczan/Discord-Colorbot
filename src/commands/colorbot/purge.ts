@@ -4,6 +4,8 @@ import interactions from '../../../lib/interactions';
 import { isColorRole } from '../../color-roles';
 import { roleManagementErrors } from '../../errors';
 
+const UNKNOWN_ROLE = 10011;
+
 const purgeConfirmButton = interactions.add({
 	data: new ButtonBuilder()
 		.setCustomId('purge-confirm')
@@ -33,13 +35,18 @@ const purgeConfirmButton = interactions.add({
 			errorReplyOptions = options;
 		};
 
-		colorRoles.map(async colorRole => (
-			colorRole.delete(`${interaction.user} used \`/colorbot purge\`.`)
-				.then(() => {
-					deletedColorRoleCount++;
+		colorRoles.map(async colorRole => {
+			await colorRole.delete(`${interaction.user} used \`/colorbot purge\`.`)
+				.catch(async error => {
+					// If the role is already missing, it might as well be considered a successful deletion.
+					if (error.code !== UNKNOWN_ROLE) {
+						throw error;
+					}
 				})
-				.catch(roleManagementErrors(interaction, colorRole, setErrorReplyOptions))
-		));
+				.catch(roleManagementErrors(interaction, colorRole, setErrorReplyOptions));
+
+			deletedColorRoleCount++;
+		});
 
 		const updateReply = async () => {
 			// To avoid race conditions, only ever update the follow-up message in here.
