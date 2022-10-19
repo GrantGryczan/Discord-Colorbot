@@ -24,7 +24,7 @@ client.once('ready', async () => {
 				guild.roles.cache
 					.filter(role => isColorRole(role) && role.members.size === 0)
 					// TODO: Catch errors.
-					.map(role => role.delete())
+					.map(role => role.delete('This role is now unused.'))
 			]);
 		})
 	);

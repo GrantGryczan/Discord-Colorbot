@@ -21,7 +21,7 @@ interactions.add({
 		}
 
 		return interaction.reply({
-			content: 'Unknown subcommand.',
+			content: '**Error:** Unknown subcommand.',
 			ephemeral: true
 		});
 	}

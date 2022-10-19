@@ -35,7 +35,7 @@ const removeColorRoleFromMember = async (
 		.catch(roleManagementErrors(interaction, colorRole));
 
 	if (colorRole.members.size === 0) {
-		await colorRole.delete()
+		await colorRole.delete('This role is now unused.')
 			.catch(roleManagementErrors(interaction, colorRole));
 	}
 };

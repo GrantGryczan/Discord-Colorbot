@@ -33,9 +33,19 @@ const purgeConfirmButton = interactions.add({
 			errorReplyOptions = options;
 		};
 
+		Promise.all(
+			colorRoles.map(async colorRole => {
+				colorRole.delete(`${interaction.user} used \`/colorbot purge\`.`)
+					.catch(roleManagementErrors(interaction, colorRole, setErrorReplyOptions));
+
+				deletedColorRoleCount++;
+			})
+		);
+
 		const updateReply = async () => {
+			// To avoid race conditions, only ever update the follow-up message in here.
+
 			if (errorReplyOptions) {
-				// TODO: Display a more specific error.
 				await setFollowUp(errorReplyOptions);
 				return;
 			}
@@ -54,24 +64,6 @@ const purgeConfirmButton = interactions.add({
 			setTimeout(updateReply, 1000);
 		};
 		updateReply();
-
-		Promise.all(
-			colorRoles.map(async colorRole => {
-				// TODO: Actually delete the role.
-				await new Promise<void>((resolve, reject) => {
-					setTimeout(() => {
-						if (Math.random() < 0.002) {
-							reject({ code: 50001 });
-						} else {
-							resolve();
-						}
-					}, Math.random() * 5000);
-				})
-					.catch(roleManagementErrors(interaction, colorRole, setErrorReplyOptions));
-
-				deletedColorRoleCount++;
-			})
-		);
 	}
 });
 
