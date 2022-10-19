@@ -2,14 +2,17 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import { Client, GatewayIntentBits } from 'discord.js';
-import commands from '../lib/commands';
+import interactions from '../lib/interactions';
 import { isColorRole } from './color-roles';
+
+import './commands/color';
+import './commands/colorbot';
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
 
-commands.load(client);
-
 client.once('ready', async () => {
+	interactions.initialize(client);
+
 	await Promise.all(
 		client.guilds.cache.map(async guild => {
 			// Cache all guild members so roles' member counts are accurate.

@@ -1,7 +1,7 @@
 import type { HexColorString, Role } from 'discord.js';
 import { SlashCommandBuilder, bold, escapeMarkdown } from 'discord.js';
-import commands, { byOptionIndexOf, stringToOption } from '../lib/commands';
-import removeColorRoleFromMember, { addColorToMember, isColorRole } from '../src/color-roles';
+import interactions, { byOptionIndexOf, stringToOption } from '../../lib/interactions';
+import removeColorRoleFromMember, { addColorToMember, isColorRole } from '../color-roles';
 
 const MAXIMUM_GUILD_ROLES_REACHED = 30005;
 
@@ -36,7 +36,7 @@ const getRGBDistanceSquared = (a: ColorRGB, b: ColorRGB) => (
 
 const normalizeColor = (color: string) => color.replace(COLOR, '#$1$1$2$2$3$3$4').toLowerCase() as HexColorString;
 
-commands.add({
+interactions.add({
 	data: new SlashCommandBuilder()
 		.setName('color')
 		.setDescription('Set your username color')
@@ -184,7 +184,7 @@ commands.add({
 
 		optionStrings.push(autocompleteHex, 'reset', 'help');
 
-		await interaction.respond(
+		return interaction.respond(
 			optionStrings
 				.map(stringToOption)
 				.sort(byOptionIndexOf(focusedValue))
