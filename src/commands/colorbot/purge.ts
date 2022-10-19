@@ -33,14 +33,13 @@ const purgeConfirmButton = interactions.add({
 			errorReplyOptions = options;
 		};
 
-		Promise.all(
-			colorRoles.map(async colorRole => {
-				colorRole.delete(`${interaction.user} used \`/colorbot purge\`.`)
-					.catch(roleManagementErrors(interaction, colorRole, setErrorReplyOptions));
-
-				deletedColorRoleCount++;
-			})
-		);
+		colorRoles.map(async colorRole => (
+			colorRole.delete(`${interaction.user} used \`/colorbot purge\`.`)
+				.then(() => {
+					deletedColorRoleCount++;
+				})
+				.catch(roleManagementErrors(interaction, colorRole, setErrorReplyOptions))
+		));
 
 		const updateReply = async () => {
 			// To avoid race conditions, only ever update the follow-up message in here.
