@@ -12,21 +12,6 @@ const purgeConfirmButton = interactions.add({
 		.setLabel('Yes, delete all color roles.')
 		.setStyle(ButtonStyle.Danger),
 	click: async interaction => {
-		await interaction.update({ components: [] });
-
-		let followUp: Message<true> | undefined;
-		const setFollowUp = async (options: BaseMessageOptions) => {
-			if (!followUp) {
-				followUp = await interaction.followUp({
-					...options,
-					ephemeral: true
-				});
-				return;
-			}
-
-			return interaction.webhook.editMessage(followUp, options);
-		};
-
 		const colorRoles = interaction.guild.roles.cache.filter(isColorRole);
 		let deletedColorRoleCount = 0;
 
@@ -52,18 +37,18 @@ const purgeConfirmButton = interactions.add({
 			// To avoid race conditions, only ever update the follow-up message in here.
 
 			if (errorReplyOptions) {
-				await setFollowUp(errorReplyOptions);
+				await interaction.editReply(errorReplyOptions);
 				return;
 			}
 
 			if (deletedColorRoleCount === colorRoles.size) {
-				await setFollowUp({
-					content: 'Deleted all color roles.'
+				await interaction.editReply({
+					content: `Deleted all ${colorRoles.size} color roles.`
 				});
 				return;
 			}
 
-			await setFollowUp({
+			await interaction.editReply({
 				content: `Deleting color roles... (${deletedColorRoleCount} of ${colorRoles.size})`
 			});
 
