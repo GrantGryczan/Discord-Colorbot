@@ -17,8 +17,5 @@ jobs:
         key: ${{ secrets.KEY }}
         port: ${{ secrets.PORT }}
         script: |
-          cd Discord-Colorbot
-          npm run tmux-stop
-          git pull origin main
-          npm install
-          npm run tmux-start
+          cd ~/Discord-Colorbot
+          ./scripts/update.sh
