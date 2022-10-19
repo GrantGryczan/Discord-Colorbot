@@ -82,15 +82,24 @@ const purgeCancelButton = interactions.add({
 	}
 });
 
-const purge = (interaction: ChatInputCommandInteraction<'cached'>) => (
-	interaction.reply({
-		content: 'Are you sure you want to delete all of this server\'s color roles?\nThis cannot be undone.',
+const purge = (interaction: ChatInputCommandInteraction<'cached'>) => {
+	const colorRoleCount = interaction.guild.roles.cache.filter(isColorRole).size;
+
+	if (colorRoleCount === 0) {
+		return interaction.reply({
+			content: '**Error:** This server has no color roles.',
+			ephemeral: true
+		});
+	}
+
+	return interaction.reply({
+		content: `Are you sure you want to delete all ${colorRoleCount} of this server's color roles?\nThis cannot be undone.`,
 		components: [
 			new ActionRowBuilder<ButtonBuilder>()
 				.addComponents(purgeConfirmButton, purgeCancelButton)
 		],
 		ephemeral: true
-	})
-);
+	});
+};
 
 export default purge;
