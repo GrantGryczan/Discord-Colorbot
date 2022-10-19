@@ -1,4 +1,4 @@
-import type { InteractionReplyOptions } from 'discord.js';
+import type { Message, BaseMessageOptions } from 'discord.js';
 import { SlashCommandBuilder, PermissionFlagsBits, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import interactions from '../../lib/interactions';
 import { isColorRole } from '../color-roles';
@@ -12,42 +12,43 @@ const purgeConfirmButton = interactions.add({
 	click: async interaction => {
 		await interaction.update({ components: [] });
 
-		let replied = false;
-		const setReply = (options: InteractionReplyOptions) => {
-			if (!replied) {
-				replied = true;
-				return interaction.followUp(options);
+		let followUp: Message<true> | undefined;
+		const setFollowUp = async (options: BaseMessageOptions) => {
+			if (!followUp) {
+				followUp = await interaction.followUp({
+					...options,
+					ephemeral: true
+				});
+				return;
 			}
 
-			return interaction.editReply(options);
+			return followUp.edit(options);
 		};
 
 		const colorRoles = interaction.guild.roles.cache.filter(isColorRole);
 		let deletedColorRoleCount = 0;
 
-		let errorReplyOptions: InteractionReplyOptions | undefined;
-		const setErrorReplyOptions = (options: InteractionReplyOptions) => {
+		let errorReplyOptions: BaseMessageOptions | undefined;
+		const setErrorReplyOptions = (options: BaseMessageOptions) => {
 			errorReplyOptions = options;
 		};
 
 		const updateReply = async () => {
 			if (errorReplyOptions) {
 				// TODO: Display a more specific error.
-				await setReply(errorReplyOptions);
+				await setFollowUp(errorReplyOptions);
 				return;
 			}
 
 			if (deletedColorRoleCount === colorRoles.size) {
-				await setReply({
-					content: `Deleted ${colorRoles.size} color roles.`,
-					ephemeral: true
+				await setFollowUp({
+					content: `Deleted ${colorRoles.size} color roles.`
 				});
 				return;
 			}
 
-			await setReply({
-				content: `Deleting ${deletedColorRoleCount}/${colorRoles.size} color roles...`,
-				ephemeral: true
+			await setFollowUp({
+				content: `Deleting ${deletedColorRoleCount}/${colorRoles.size} color roles...`
 			});
 
 			setTimeout(updateReply, 1000);
