@@ -79,11 +79,9 @@ const purgeCancelButton = interactions.add({
 		.setLabel('No, never mind.')
 		.setStyle(ButtonStyle.Secondary),
 	click: async interaction => {
-		await interaction.update({ components: [] });
-
-		await interaction.followUp({
+		await interaction.update({
 			content: 'Color role purge cancelled.',
-			ephemeral: true
+			components: []
 		});
 	}
 });
