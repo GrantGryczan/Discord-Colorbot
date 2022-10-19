@@ -30,24 +30,6 @@ const purgeConfirmButton = interactions.add({
 			errorReplyOptions = options;
 		};
 
-		Promise.all(
-			colorRoles.map(async colorRole => {
-				// TODO: Actually delete the role.
-				await new Promise<void>(resolve => {
-					setTimeout(() => {
-						resolve();
-
-						if (Math.random() < 0.002) {
-							throw { code: 50001 } as any;
-						}
-					}, Math.random() * 5000);
-				})
-					.catch(roleManagementErrors(interaction, colorRole, setErrorReplyOptions));
-
-				deletedColorRoleCount++;
-			})
-		);
-
 		const updateReply = async () => {
 			if (errorReplyOptions) {
 				// TODO: Display a more specific error.
@@ -71,9 +53,23 @@ const purgeConfirmButton = interactions.add({
 		};
 		setTimeout(updateReply, 500);
 
-		// TODO: Delete all color roles.
+		Promise.all(
+			colorRoles.map(async colorRole => {
+				// TODO: Actually delete the role.
+				await new Promise<void>(resolve => {
+					setTimeout(() => {
+						resolve();
 
-		done = true;
+						if (Math.random() < 0.002) {
+							throw { code: 50001 } as any;
+						}
+					}, Math.random() * 5000);
+				})
+					.catch(roleManagementErrors(interaction, colorRole, setErrorReplyOptions));
+
+				deletedColorRoleCount++;
+			})
+		);
 	}
 });
 
