@@ -1,8 +1,8 @@
-import type { Message, BaseMessageOptions } from 'discord.js';
-import { SlashCommandBuilder, PermissionFlagsBits, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
-import interactions from '../../lib/interactions';
-import { isColorRole } from '../color-roles';
-import { roleManagementErrors } from '../errors';
+import type { Message, BaseMessageOptions, ChatInputCommandInteraction } from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
+import interactions from '../../../lib/interactions';
+import { isColorRole } from '../../color-roles';
+import { roleManagementErrors } from '../../errors';
 
 const purgeConfirmButton = interactions.add({
 	data: new ButtonBuilder()
@@ -48,12 +48,12 @@ const purgeConfirmButton = interactions.add({
 			}
 
 			await setFollowUp({
-				content: `Deleting ${deletedColorRoleCount}/${colorRoles.size} color roles...`
+				content: `Deleting color roles... (${deletedColorRoleCount} of ${colorRoles.size})`
 			});
 
 			setTimeout(updateReply, 1000);
 		};
-		setTimeout(updateReply, 500);
+		updateReply();
 
 		Promise.all(
 			colorRoles.map(async colorRole => {
@@ -90,34 +90,15 @@ const purgeCancelButton = interactions.add({
 	}
 });
 
-interactions.add({
-	data: new SlashCommandBuilder()
-		.setName('colorbot')
-		.setDescription('Manage Colorbot')
-		.setDMPermission(false)
-		.setDefaultMemberPermissions(PermissionFlagsBits.ManageRoles)
-		.addSubcommand(subcommand => (
-			subcommand
-				.setName('purge')
-				.setDescription('Permanently deletes all of this server\'s color roles')
-		)),
-	execute: async interaction => {
-		const subcommand = interaction.options.getSubcommand();
+const purge = (interaction: ChatInputCommandInteraction<'cached'>) => (
+	interaction.reply({
+		content: 'Are you sure you want to delete all of this server\'s color roles?\nThis cannot be undone.',
+		components: [
+			new ActionRowBuilder<ButtonBuilder>()
+				.addComponents(purgeConfirmButton, purgeCancelButton)
+		],
+		ephemeral: true
+	})
+);
 
-		if (subcommand === 'purge') {
-			return interaction.reply({
-				content: 'Are you sure you want to delete all of this server\'s color roles?\nThis cannot be undone.',
-				components: [
-					new ActionRowBuilder<ButtonBuilder>()
-						.addComponents(purgeConfirmButton, purgeCancelButton)
-				],
-				ephemeral: true
-			});
-		}
-
-		return interaction.reply({
-			content: 'Unknown subcommand.',
-			ephemeral: true
-		});
-	}
-});
+export default purge;
