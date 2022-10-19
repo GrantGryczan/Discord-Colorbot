@@ -14,7 +14,8 @@ const purgeConfirmButton = interactions.add({
 		await interaction.editReply({ components: [] });
 
 		await interaction.followUp({
-			content: 'Testing...'
+			content: 'Testing...',
+			ephemeral: true
 		});
 	}
 });
