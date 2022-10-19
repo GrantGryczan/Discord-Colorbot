@@ -1,4 +1,4 @@
-import type { Message, BaseMessageOptions, ChatInputCommandInteraction } from 'discord.js';
+import type { BaseMessageOptions, ChatInputCommandInteraction } from 'discord.js';
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import interactions from '../../../lib/interactions';
 import { isColorRole } from '../../color-roles';
@@ -12,12 +12,23 @@ const purgeConfirmButton = interactions.add({
 		.setLabel('Yes, delete all color roles.')
 		.setStyle(ButtonStyle.Danger),
 	click: async interaction => {
+		const setMessage = async (options: BaseMessageOptions) => {
+			if (interaction.replied) {
+				interaction.editReply(options);
+			} else {
+				await interaction.update({
+					...options,
+					components: []
+				});
+			}
+		};
+
 		const colorRoles = interaction.guild.roles.cache.filter(isColorRole);
 		let deletedColorRoleCount = 0;
 
-		let errorReplyOptions: BaseMessageOptions | undefined;
-		const setErrorReplyOptions = (options: BaseMessageOptions) => {
-			errorReplyOptions = options;
+		let errorMessageOptions: BaseMessageOptions | undefined;
+		const setErrorMessageOptions = (options: BaseMessageOptions) => {
+			errorMessageOptions = options;
 		};
 
 		colorRoles.map(async colorRole => {
@@ -28,33 +39,33 @@ const purgeConfirmButton = interactions.add({
 						throw error;
 					}
 				})
-				.catch(roleManagementErrors(interaction, colorRole, setErrorReplyOptions));
+				.catch(roleManagementErrors(interaction, colorRole, setErrorMessageOptions));
 
 			deletedColorRoleCount++;
 		});
 
-		const updateReply = async () => {
+		const updateMessage = async () => {
 			// To avoid race conditions, only ever update the follow-up message in here.
 
-			if (errorReplyOptions) {
-				await interaction.editReply(errorReplyOptions);
+			if (errorMessageOptions) {
+				await setMessage(errorMessageOptions);
 				return;
 			}
 
 			if (deletedColorRoleCount === colorRoles.size) {
-				await interaction.editReply({
+				await setMessage({
 					content: `Deleted all ${colorRoles.size} color roles.`
 				});
 				return;
 			}
 
-			await interaction.editReply({
+			await setMessage({
 				content: `Deleting color roles... (${deletedColorRoleCount} of ${colorRoles.size})`
 			});
 
-			setTimeout(updateReply, 1000);
+			setTimeout(updateMessage, 1000);
 		};
-		updateReply();
+		updateMessage();
 	}
 });
 
