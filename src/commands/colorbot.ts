@@ -39,7 +39,8 @@ const purgeConfirmButton = interactions.add({
 
 			if (deletedColorRoleCount === colorRoles.size) {
 				await setReply({
-					content: `Deleted ${colorRoles.size} color roles.`
+					content: `Deleted ${colorRoles.size} color roles.`,
+					ephemeral: true
 				});
 				return;
 			}
