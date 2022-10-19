@@ -22,7 +22,7 @@ const purgeConfirmButton = interactions.add({
 				return;
 			}
 
-			return followUp.edit(options);
+			return interaction.webhook.editMessage(followUp, options);
 		};
 
 		const colorRoles = interaction.guild.roles.cache.filter(isColorRole);
