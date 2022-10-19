@@ -8,13 +8,15 @@ const purgeConfirmButton = interactions.add({
 		.setStyle(ButtonStyle.Danger),
 	click: async interaction => {
 		await interaction.deferUpdate();
+		await interaction.deferReply();
 
 		// TODO: Delete all color roles.
 
 		await interaction.update({ components: [] });
 
-		await interaction.followUp({
-			content: 'Testing...'
+		await interaction.reply({
+			content: 'Testing...',
+			ephemeral: true
 		});
 	}
 });
@@ -27,8 +29,9 @@ const purgeCancelButton = interactions.add({
 	click: async interaction => {
 		await interaction.update({ components: [] });
 
-		await interaction.followUp({
-			content: 'Color role purge cancelled.'
+		await interaction.reply({
+			content: 'Color role purge cancelled.',
+			ephemeral: true
 		});
 	}
 });
