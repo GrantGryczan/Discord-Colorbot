@@ -11,8 +11,6 @@ import './commands/colorbot';
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
 
 client.once('ready', async () => {
-	interactions.initialize(client);
-
 	await Promise.all(
 		client.guilds.cache.map(async guild => {
 			// Cache all guild members so roles' member counts are accurate.
@@ -23,11 +21,13 @@ client.once('ready', async () => {
 			await Promise.all([
 				guild.roles.cache
 					.filter(role => isColorRole(role) && role.members.size === 0)
-					// TODO: Catch errors.
-					.map(role => role.delete('This role is now unused.'))
+					// TODO: Display errors to users.
+					.map(role => role.delete('This role is now unused.').catch(console.error))
 			]);
 		})
 	);
+
+	await interactions.initialize(client);
 
 	console.log('Ready!');
 });
