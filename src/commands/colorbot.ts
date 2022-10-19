@@ -58,12 +58,12 @@ const purgeConfirmButton = interactions.add({
 		Promise.all(
 			colorRoles.map(async colorRole => {
 				// TODO: Actually delete the role.
-				await new Promise<void>(resolve => {
+				await new Promise<void>((resolve, reject) => {
 					setTimeout(() => {
 						resolve();
 
 						if (Math.random() < 0.002) {
-							throw { code: 50001 } as any;
+							reject({ code: 50001 });
 						}
 					}, Math.random() * 5000);
 				})
