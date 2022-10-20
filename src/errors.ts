@@ -69,7 +69,7 @@ export const roleManagementErrors = ({
 				ephemeral: true
 			});
 
-			if (shouldDMGuildOwner) {
+			if (!shouldDMGuildOwner) {
 				return;
 			}
 
