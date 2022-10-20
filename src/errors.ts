@@ -57,7 +57,6 @@ export const roleManagementErrors = ({
 
 	const sendErrorMessage = (description: string) => {
 		const options = getErrorMessageOptions(description);
-		const dmOptions = getErrorMessageOptions(description, guild);
 
 		interaction?.reply({
 			...options,
@@ -66,18 +65,22 @@ export const roleManagementErrors = ({
 
 		callback?.(options);
 
-		if (
-			interaction?.user.id !== guild.ownerId
-			&& !(antiSpamKey && usedAntiSpamKeys.has(antiSpamKey))
-		) {
-			guild.client.users.send(guild.ownerId, dmOptions)
-				.then(() => {
-					if (antiSpamKey) {
-						usedAntiSpamKeys.add(antiSpamKey);
-					}
-				})
-				.catch(() => {});
+		if (interaction?.user.id === guild.ownerId) {
+			return;
 		}
+
+		if (antiSpamKey) {
+			if (usedAntiSpamKeys.has(antiSpamKey)) {
+				return;
+			}
+
+			usedAntiSpamKeys.add(antiSpamKey);
+		}
+
+		guild.client.users.send(
+			guild.ownerId,
+			getErrorMessageOptions(description, guild)
+		).catch(() => {});
 	};
 
 	return (error: any) => new Promise<never>(async (_, reject) => {
