@@ -39,7 +39,15 @@ const confirmButton = interactions.add({
 						throw error;
 					}
 				})
-				.catch(roleManagementErrors({ role: colorRole, callback: setErrorMessageOptions }));
+				.catch(error => {
+					if (errorMessageOptions) {
+						// Once one error message has already been sent to the server owner, don't spam more.
+						return;
+					}
+
+					const handle = roleManagementErrors({ role: colorRole, callback: setErrorMessageOptions });
+					handle(error);
+				});
 
 			deletedColorRoleCount++;
 		});
