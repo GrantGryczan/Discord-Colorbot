@@ -11,6 +11,8 @@ import { roleManagementErrors } from './errors';
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
 
+client.on('error', console.error);
+
 client.once('ready', async () => {
 	await Promise.all(
 		client.guilds.cache.map(async guild => {
