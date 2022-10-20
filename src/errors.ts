@@ -90,7 +90,7 @@ export const roleManagementErrors = ({
 		}
 
 		if (role && error.code === MISSING_PERMISSIONS) {
-			const me = await role.guild.members.fetchMe();
+			const me = await guild.members.fetchMe();
 
 			if (me.roles.highest.position < role.position) {
 				sendErrorMessage('For me to be able to manage color roles, I must have at least one role above all the color roles in the server\'s role list.');
