@@ -1,6 +1,6 @@
 import type { HexColorString, Role } from 'discord.js';
 import { SlashCommandBuilder, bold, escapeMarkdown } from 'discord.js';
-import interactions, { byOptionIndexOf, stringToOption } from '../../lib/interactions';
+import interactions, { byOptionIndexOf, stringToOption } from '../modular-interactions';
 import removeColorRoleFromMember, { addColorToMember, isColorRole } from '../color-roles';
 
 const MAXIMUM_GUILD_ROLES_REACHED = 30005;

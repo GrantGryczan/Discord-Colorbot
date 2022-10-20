@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import { Client, GatewayIntentBits } from 'discord.js';
-import interactions from '../lib/interactions';
+import interactions from './modular-interactions';
 import { isColorRole } from './color-roles';
 
 import './commands/color';

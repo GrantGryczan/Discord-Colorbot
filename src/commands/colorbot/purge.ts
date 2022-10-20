@@ -1,6 +1,6 @@
 import type { BaseMessageOptions, ChatInputCommandInteraction } from 'discord.js';
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
-import interactions from '../../../lib/interactions';
+import interactions from '../../modular-interactions';
 import { isColorRole } from '../../color-roles';
 import { roleManagementErrors } from '../../errors';
 

@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
-import interactions from '../../../lib/interactions';
+import interactions from '../../modular-interactions';
 import purge from './purge';
 
 interactions.add({
