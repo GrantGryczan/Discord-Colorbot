@@ -14,13 +14,13 @@ const confirmButton = interactions.add({
 	click: async interaction => {
 		const setMessage = async (options: BaseMessageOptions) => {
 			if (interaction.replied) {
-				interaction.editReply(options);
-			} else {
-				await interaction.update({
-					...options,
-					components: []
-				});
+				return interaction.editReply(options);
 			}
+
+			return interaction.update({
+				...options,
+				components: []
+			});
 		};
 
 		const colorRoles = interaction.guild.roles.cache.filter(isColorRole);
