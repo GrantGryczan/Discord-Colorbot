@@ -31,6 +31,7 @@ const confirmButton = interactions.add({
 			errorMessageOptions = options;
 		};
 
+		const antiSpamKey = {};
 		colorRoles.map(async colorRole => {
 			await colorRole.delete(`${interaction.user} used \`/colorbot deletecolors\`.`)
 				.catch(async error => {
@@ -39,15 +40,11 @@ const confirmButton = interactions.add({
 						throw error;
 					}
 				})
-				.catch(error => {
-					if (errorMessageOptions) {
-						// Once one error message has already been sent to the server owner, don't spam more.
-						return;
-					}
-
-					const handle = roleManagementErrors({ role: colorRole, callback: setErrorMessageOptions });
-					handle(error);
-				});
+				.catch(roleManagementErrors({
+					role: colorRole,
+					callback: setErrorMessageOptions,
+					antiSpamKey
+				}));
 
 			deletedColorRoleCount++;
 		});

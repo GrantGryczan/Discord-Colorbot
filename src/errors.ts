@@ -24,10 +24,16 @@ export const getErrorMessageOptions = (
 	}]
 });
 
+const usedAntiSpamKeys = new WeakSet<Record<never, never>>();
+
 /**
  * Returns a promise rejection handler for role management operations. A role option must also be specified if the error would be caused by managing a particular role.
  *
- * If the handler catches an error it expects, it never resolves, tries to DM the error message to the server owner, and passes the error message into the callback and/or an ephemeral interaction reply.
+ * If the handler catches an error it expects, it
+ * * never resolves,
+ * * passes the error message into the callback if set,
+ * * sends an ephemeral reply with the error message to the interaction if set, and
+ * * tries to DM the error message to the server owner if they're not already the interaction user (unless an anti-spam key is set and the server owner has already been DMed with that key before).
  *
  * If the handler catches an error it doesn't expect, it throws it again.
  */
@@ -35,41 +41,57 @@ export const roleManagementErrors = ({
 	interaction,
 	role,
 	guild = (interaction || role)?.guild,
-	callback
+	callback,
+	antiSpamKey
 }: {
 	interaction?: RepliableInteraction<'cached'>,
 	role?: Role,
 	guild?: Guild,
-	callback?: (messageOptions: BaseMessageOptions) => unknown
+	callback?: (messageOptions: BaseMessageOptions) => unknown,
+	/** If an error is DMed to the server owner with this set (to an empty object), they will not be DMed again by any handler for which the same object was set here. */
+	antiSpamKey?: Record<never, never>
 }) => {
 	if (!guild) {
 		throw new TypeError('You must set the `guild` option if both `interaction` and `role` are unset.');
 	}
 
-	const sendErrorMessage = async (description: string) => {
+	const sendErrorMessage = (description: string) => {
 		const options = getErrorMessageOptions(description);
 		const dmOptions = getErrorMessageOptions(description, guild);
 
-		await Promise.all([
-			interaction?.reply({
-				...options,
-				ephemeral: true
-			}),
-			guild.client.users.send(guild.ownerId, dmOptions),
-			callback?.(options)
-		]);
+		interaction?.reply({
+			...options,
+			ephemeral: true
+		});
+
+		callback?.(options);
+
+		if (
+			interaction?.user.id !== guild.ownerId
+			|| (antiSpamKey && usedAntiSpamKeys.has(antiSpamKey))
+		) {
+			guild.client.users.send(guild.ownerId, dmOptions)
+				.then(() => {
+					if (antiSpamKey) {
+						usedAntiSpamKeys.add(antiSpamKey);
+					}
+				})
+				.catch(() => {});
+		}
 	};
 
 	return (error: any) => new Promise<never>(async (_, reject) => {
 		if (error.code === MISSING_ACCESS) {
-			return sendErrorMessage('I am missing the **Manage Roles** permission.');
+			sendErrorMessage('I am missing the **Manage Roles** permission.');
+			return;
 		}
 
 		if (role && error.code === MISSING_PERMISSIONS) {
 			const me = await role.guild.members.fetchMe();
 
 			if (me.roles.highest.position < role.position) {
-				return sendErrorMessage('For me to be able to manage color roles, I must have at least one role above all the color roles in the server\'s role list.');
+				sendErrorMessage('For me to be able to manage color roles, I must have at least one role above all the color roles in the server\'s role list.');
+				return;
 			}
 		}
 
