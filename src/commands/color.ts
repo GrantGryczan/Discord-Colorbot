@@ -39,13 +39,13 @@ const normalizeColor = (color: string) => color.replace(COLOR, '#$1$1$2$2$3$3$4'
 interactions.add({
 	data: new SlashCommandBuilder()
 		.setName('color')
-		.setDescription('Set your username color')
+		.setDescription('Set your username color.')
 		.setDMPermission(false)
 		.addStringOption(option => (
 			option
 				.setRequired(true)
 				.setName('value')
-				.setDescription('A hex code to set as your color, "reset" to remove your color role, or "help" for info on hex codes')
+				.setDescription('A hex code to set as your color, "reset" to remove your color role, or "help" for info on hex codes.')
 				.setAutocomplete(true)
 		)),
 	execute: async interaction => {
