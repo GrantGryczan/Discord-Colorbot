@@ -12,7 +12,7 @@ const confirmButton = interactions.add({
 		.setLabel('Yes, delete all color roles.')
 		.setStyle(ButtonStyle.Danger),
 	click: async interaction => {
-		const setMessage = async (options: BaseMessageOptions) => {
+		const setMessage = (options: BaseMessageOptions) => {
 			if (interaction.replied) {
 				return interaction.editReply(options);
 			}
