@@ -19,7 +19,8 @@ client.once('ready', async () => {
 			await guild.members.fetch();
 
 			// Delete all unused hex color roles.
-			await Promise.all(
+			// Don't await this because that would allow DOS by inviting the bot to servers with large amounts of unused color roles.
+			Promise.all(
 				guild.roles.cache
 					.filter(role => isColorRole(role) && role.members.size === 0)
 					.map(role => role.delete('This role is now unused.'))
