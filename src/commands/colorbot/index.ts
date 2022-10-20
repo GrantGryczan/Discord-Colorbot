@@ -1,4 +1,5 @@
 import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
+import { getErrorMessageOptions } from '../../errors';
 import interactions from '../../modular-interactions';
 import deleteColors from './deletecolors';
 
@@ -21,7 +22,7 @@ interactions.add({
 		}
 
 		return interaction.reply({
-			content: '**Error:** Unknown subcommand.',
+			...getErrorMessageOptions('Unknown subcommand.'),
 			ephemeral: true
 		});
 	}

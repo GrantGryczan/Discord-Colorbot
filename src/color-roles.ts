@@ -17,11 +17,11 @@ export const addColorToMember = async (
 			name: color,
 			color,
 			permissions: []
-		}).catch(roleManagementErrors(interaction));
+		}).catch(roleManagementErrors({ interaction }));
 	}
 
 	await interaction.member.roles.add(colorRole)
-		.catch(roleManagementErrors(interaction, colorRole));
+		.catch(roleManagementErrors({ interaction, role: colorRole }));
 
 	return colorRole;
 };
@@ -31,12 +31,14 @@ const removeColorRoleFromMember = async (
 	interaction: ChatInputCommandInteraction<'cached'>,
 	colorRole: Role
 ) => {
+	const colorRoleManagementErrors = roleManagementErrors({ interaction, role: colorRole });
+
 	await interaction.member.roles.remove(colorRole)
-		.catch(roleManagementErrors(interaction, colorRole));
+		.catch(colorRoleManagementErrors);
 
 	if (colorRole.members.size === 0) {
 		await colorRole.delete('This role is now unused.')
-			.catch(roleManagementErrors(interaction, colorRole));
+			.catch(colorRoleManagementErrors);
 	}
 };
 

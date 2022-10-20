@@ -1,12 +1,13 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
+import './commands/color';
+import './commands/colorbot';
+
 import { Client, GatewayIntentBits } from 'discord.js';
 import interactions from './modular-interactions';
 import { isColorRole } from './color-roles';
-
-import './commands/color';
-import './commands/colorbot';
+import { roleManagementErrors } from './errors';
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
 
@@ -21,9 +22,8 @@ client.once('ready', async () => {
 			await Promise.all([
 				guild.roles.cache
 					.filter(role => isColorRole(role) && role.members.size === 0)
-					// TODO: Display errors to users.
-					.map(role => role.delete('This role is now unused.').catch(console.error))
-			]);
+					.map(role => role.delete('This role is now unused.'))
+			]).catch(roleManagementErrors({ guild }));
 		})
 	);
 

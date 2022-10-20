@@ -119,13 +119,13 @@ interactions.add({
 
 					if (colorRolesWithRGB.length === 0) {
 						return interaction.reply({
-							content: '**Error:** The maximum role limit has been reached and no color roles can be created.',
+							content: 'The maximum role limit has been reached, so no color roles can be created.',
 							ephemeral: true
 						});
 					}
 
 					return interaction.reply({
-						content: 'The maximum role limit has been reached and no more color roles can be created. If you want, you can choose a color someone else is already using. Below are some similar colors I found to the one you entered.',
+						content: 'The maximum role limit has been reached, so no more color roles can be created. If you want, you can choose a color someone else is already using. Below are some similar colors I found to the one you entered.',
 						embeds: [{
 							description: (
 								colorRolesWithRGB

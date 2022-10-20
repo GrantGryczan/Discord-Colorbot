@@ -2,7 +2,7 @@ import type { BaseMessageOptions, ChatInputCommandInteraction } from 'discord.js
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import interactions from '../../modular-interactions';
 import { isColorRole } from '../../color-roles';
-import { roleManagementErrors } from '../../errors';
+import { getErrorMessageOptions, roleManagementErrors } from '../../errors';
 
 const UNKNOWN_ROLE = 10011;
 
@@ -39,7 +39,7 @@ const confirmButton = interactions.add({
 						throw error;
 					}
 				})
-				.catch(roleManagementErrors(interaction, colorRole, setErrorMessageOptions));
+				.catch(roleManagementErrors({ role: colorRole, callback: setErrorMessageOptions }));
 
 			deletedColorRoleCount++;
 		});
@@ -87,7 +87,7 @@ const deleteColors = (interaction: ChatInputCommandInteraction<'cached'>) => {
 
 	if (colorRoleCount === 0) {
 		return interaction.reply({
-			content: '**Error:** This server has no color roles.',
+			...getErrorMessageOptions('This server has no color roles.'),
 			ephemeral: true
 		});
 	}
