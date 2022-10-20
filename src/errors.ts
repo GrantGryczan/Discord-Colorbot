@@ -68,7 +68,7 @@ export const roleManagementErrors = ({
 
 		if (
 			interaction?.user.id !== guild.ownerId
-			|| (antiSpamKey && !usedAntiSpamKeys.has(antiSpamKey))
+			&& !(antiSpamKey && usedAntiSpamKeys.has(antiSpamKey))
 		) {
 			guild.client.users.send(guild.ownerId, dmOptions)
 				.then(() => {
