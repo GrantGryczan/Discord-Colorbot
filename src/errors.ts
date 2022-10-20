@@ -33,7 +33,7 @@ const usedAntiSpamKeys = new WeakSet<Record<never, never>>();
  * * never resolves,
  * * passes the error message into the callback if set,
  * * sends an ephemeral reply with the error message to the interaction if set, and
- * * tries to DM the error message to the server owner if they're not already the interaction user (unless an anti-spam key is set and the server owner has already been DMed with that key before).
+ * * tries to DM the error message to the server owner (unless `shouldDMGuildOwner` is `false` or an anti-spam key is set and the server owner has already been DMed with that key before).
  *
  * If the handler catches an error it doesn't expect, it throws it again.
  */
@@ -41,12 +41,15 @@ export const roleManagementErrors = ({
 	interaction,
 	role,
 	guild = (interaction || role)?.guild,
+	shouldDMGuildOwner = interaction?.user.id !== guild?.ownerId,
 	callback,
 	antiSpamKey
 }: {
 	interaction?: RepliableInteraction<'cached'>,
 	role?: Role,
 	guild?: Guild,
+	/** By default, this is set to not DM the server owner about the error if they'll see it in the interaction reply anyway. Setting this overwrites that functionality. */
+	shouldDMGuildOwner?: boolean,
 	callback?: (messageOptions: BaseMessageOptions) => unknown,
 	/** If an error is DMed to the server owner with this set (to an empty object), they will not be DMed again by any handler for which the same object was set here. */
 	antiSpamKey?: Record<never, never>
@@ -55,35 +58,35 @@ export const roleManagementErrors = ({
 		throw new TypeError('You must set the `guild` option if both `interaction` and `role` are unset.');
 	}
 
-	const sendErrorMessage = (description: string) => {
-		const options = getErrorMessageOptions(description);
+	return (error: any) => new Promise<never>(async (_, reject) => {
+		const sendErrorMessage = (description: string) => {
+			const options = getErrorMessageOptions(description);
 
-		interaction?.reply({
-			...options,
-			ephemeral: true
-		});
+			callback?.(options);
 
-		callback?.(options);
+			interaction?.reply({
+				...options,
+				ephemeral: true
+			});
 
-		if (interaction?.user.id === guild.ownerId) {
-			return;
-		}
-
-		if (antiSpamKey) {
-			if (usedAntiSpamKeys.has(antiSpamKey)) {
+			if (shouldDMGuildOwner) {
 				return;
 			}
 
-			usedAntiSpamKeys.add(antiSpamKey);
-		}
+			if (antiSpamKey) {
+				if (usedAntiSpamKeys.has(antiSpamKey)) {
+					return;
+				}
 
-		guild.client.users.send(
-			guild.ownerId,
-			getErrorMessageOptions(description, guild)
-		).catch(() => {});
-	};
+				usedAntiSpamKeys.add(antiSpamKey);
+			}
 
-	return (error: any) => new Promise<never>(async (_, reject) => {
+			guild.client.users.send(
+				guild.ownerId,
+				getErrorMessageOptions(description, guild)
+			).catch(() => {});
+		};
+
 		if (error.code === MISSING_ACCESS) {
 			sendErrorMessage('I am missing the **Manage Roles** permission.');
 			return;

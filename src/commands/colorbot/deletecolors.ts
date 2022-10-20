@@ -42,6 +42,7 @@ const confirmButton = interactions.add({
 				})
 				.catch(roleManagementErrors({
 					role: colorRole,
+					shouldDMGuildOwner: interaction.user.id !== interaction.guild.ownerId,
 					callback: setErrorMessageOptions,
 					antiSpamKey
 				}));
