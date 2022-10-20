@@ -21,16 +21,14 @@ client.once('ready', async () => {
 			await guild.members.fetch();
 
 			// Delete all unused color roles.
-			// Don't await this because that would allow DOS by inviting the bot to servers with large amounts of unused color roles.
+			// Don't await any of this because that would allow DOS. Mass role deletion is very slow.
 			const antiSpamKey = {};
-			Promise.all(
-				guild.roles.cache
-					.filter(role => isColorRole(role) && role.members.size === 0)
-					.map(colorRole => (
-						colorRole.delete('This role is now unused.')
-							.catch(roleManagementErrors({ role: colorRole, antiSpamKey }))
-					))
-			);
+			for (const role of guild.roles.cache.values()) {
+				if (isColorRole(role) && role.members.size === 0) {
+					role.delete('This role is now unused.')
+						.catch(roleManagementErrors({ role, antiSpamKey }));
+				}
+			}
 		})
 	);
 
