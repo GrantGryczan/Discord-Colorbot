@@ -24,7 +24,9 @@ export const getErrorMessageOptions = (
 	}]
 });
 
-const usedAntiSpamKeys = new WeakSet<Record<never, never>>();
+export class AntiSpamKey {}
+
+const usedAntiSpamKeys = new WeakSet<AntiSpamKey>();
 
 /**
  * Returns a promise rejection handler for role management operations. A role option must also be specified if the error would be caused by managing a particular role.
@@ -51,8 +53,8 @@ export const roleManagementErrors = ({
 	/** By default, this is set to not DM the server owner about the error if they'll see it in the interaction reply anyway. Setting this overwrites that functionality. */
 	shouldDMGuildOwner?: boolean,
 	callback?: (messageOptions: BaseMessageOptions) => unknown,
-	/** If an error is DMed to the server owner with this set (to an empty object), they will not be DMed again by any handler for which the same object was set here. */
-	antiSpamKey?: Record<never, never>
+	/** If an error is DMed to the server owner with this set to an `AntiSpamKey` instance, they will not be DMed again by any handler with the same instance. */
+	antiSpamKey?: AntiSpamKey
 }) => {
 	if (!guild) {
 		throw new TypeError('You must set the `guild` option if both `interaction` and `role` are unset.');

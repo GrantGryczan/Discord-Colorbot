@@ -7,7 +7,7 @@ import './commands/colorbot';
 import { Client, GatewayIntentBits } from 'discord.js';
 import interactions from './modular-interactions';
 import { isColorRole } from './color-roles';
-import { roleManagementErrors } from './errors';
+import { AntiSpamKey, roleManagementErrors } from './errors';
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
 
@@ -22,7 +22,7 @@ client.once('ready', async () => {
 
 			// Delete all unused color roles.
 			// Don't await any of this because that would allow DOS. Mass role deletion is very slow.
-			const antiSpamKey = {};
+			const antiSpamKey = new AntiSpamKey();
 			for (const role of guild.roles.cache.values()) {
 				if (isColorRole(role) && role.members.size === 0) {
 					role.delete('This role is now unused.')

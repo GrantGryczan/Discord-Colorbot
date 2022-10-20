@@ -2,7 +2,7 @@ import type { BaseMessageOptions, ChatInputCommandInteraction } from 'discord.js
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import interactions from '../../modular-interactions';
 import { isColorRole } from '../../color-roles';
-import { getErrorMessageOptions, roleManagementErrors } from '../../errors';
+import { AntiSpamKey, getErrorMessageOptions, roleManagementErrors } from '../../errors';
 
 const UNKNOWN_ROLE = 10011;
 
@@ -31,7 +31,7 @@ const confirmButton = interactions.add({
 			errorMessageOptions = options;
 		};
 
-		const antiSpamKey = {};
+		const antiSpamKey = new AntiSpamKey();
 		colorRoles.map(async colorRole => {
 			await colorRole.delete(`${interaction.user} used \`/colorbot deletecolors\`.`)
 				.catch(async error => {
