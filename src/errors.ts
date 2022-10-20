@@ -46,11 +46,11 @@ export const roleManagementErrors = ({
 		throw new TypeError('You must set the `guild` option if both `interaction` and `role` are unset.');
 	}
 
-	const sendErrorMessage = (description: string) => {
+	const sendErrorMessage = async (description: string) => {
 		const options = getErrorMessageOptions(description);
 		const dmOptions = getErrorMessageOptions(description, guild);
 
-		return Promise.all([
+		await Promise.all([
 			interaction?.reply({
 				...options,
 				ephemeral: true
@@ -62,16 +62,14 @@ export const roleManagementErrors = ({
 
 	return (error: any) => new Promise<never>(async (_, reject) => {
 		if (error.code === MISSING_ACCESS) {
-			await sendErrorMessage('I am missing the **Manage Roles** permission.');
-			return;
+			return sendErrorMessage('I am missing the **Manage Roles** permission.');
 		}
 
 		if (role && error.code === MISSING_PERMISSIONS) {
 			const me = await role.guild.members.fetchMe();
 
 			if (me.roles.highest.position < role.position) {
-				await sendErrorMessage('For me to be able to manage color roles, I must have at least one role above all the color roles in the server\'s role list.');
-				return;
+				return sendErrorMessage('For me to be able to manage color roles, I must have at least one role above all the color roles in the server\'s role list.');
 			}
 		}
 
