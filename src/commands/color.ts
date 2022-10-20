@@ -22,8 +22,8 @@ type ColorRoleWithRGB = {
 const HEX_DIGIT_BITS = 4;
 
 const getColorRGB = (colorNumber: number): ColorRGB => ({
-	red: colorNumber >> 4 * HEX_DIGIT_BITS,
-	green: (colorNumber & 0x00ff00) >> 2 * HEX_DIGIT_BITS,
+	red: colorNumber >> (4 * HEX_DIGIT_BITS),
+	green: (colorNumber & 0x00ff00) >> (2 * HEX_DIGIT_BITS),
 	blue: colorNumber & 0x0000ff
 });
 
