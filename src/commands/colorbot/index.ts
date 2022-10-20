@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
 import interactions from '../../modular-interactions';
-import purge from './purge';
+import deleteColors from './deletecolors';
 
 interactions.add({
 	data: new SlashCommandBuilder()
@@ -16,8 +16,8 @@ interactions.add({
 	execute: async interaction => {
 		const subcommand = interaction.options.getSubcommand();
 
-		if (subcommand === 'purge') {
-			return purge(interaction);
+		if (subcommand === 'deletecolors') {
+			return deleteColors(interaction);
 		}
 
 		return interaction.reply({

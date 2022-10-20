@@ -6,9 +6,9 @@ import { roleManagementErrors } from '../../errors';
 
 const UNKNOWN_ROLE = 10011;
 
-const purgeConfirmButton = interactions.add({
+const confirmButton = interactions.add({
 	data: new ButtonBuilder()
-		.setCustomId('purge-confirm')
+		.setCustomId('deletecolors-confirm')
 		.setLabel('Yes, delete all color roles.')
 		.setStyle(ButtonStyle.Danger),
 	click: async interaction => {
@@ -32,7 +32,7 @@ const purgeConfirmButton = interactions.add({
 		};
 
 		colorRoles.map(async colorRole => {
-			await colorRole.delete(`${interaction.user} used \`/colorbot purge\`.`)
+			await colorRole.delete(`${interaction.user} used \`/colorbot deletecolors\`.`)
 				.catch(async error => {
 					// If the role is already missing, it might as well be considered a successful deletion.
 					if (error.code !== UNKNOWN_ROLE) {
@@ -69,20 +69,20 @@ const purgeConfirmButton = interactions.add({
 	}
 });
 
-const purgeCancelButton = interactions.add({
+const cancelButton = interactions.add({
 	data: new ButtonBuilder()
-		.setCustomId('purge-cancel')
+		.setCustomId('deletecolors-cancel')
 		.setLabel('No, never mind.')
 		.setStyle(ButtonStyle.Secondary),
 	click: async interaction => {
 		await interaction.update({
-			content: 'Color role purge cancelled.',
+			content: 'Cancelled.',
 			components: []
 		});
 	}
 });
 
-const purge = (interaction: ChatInputCommandInteraction<'cached'>) => {
+const deleteColors = (interaction: ChatInputCommandInteraction<'cached'>) => {
 	const colorRoleCount = interaction.guild.roles.cache.filter(isColorRole).size;
 
 	if (colorRoleCount === 0) {
@@ -96,10 +96,10 @@ const purge = (interaction: ChatInputCommandInteraction<'cached'>) => {
 		content: `Are you sure you want to delete all ${colorRoleCount} of this server's color roles?\nThis cannot be undone.`,
 		components: [
 			new ActionRowBuilder<ButtonBuilder>()
-				.addComponents(purgeConfirmButton, purgeCancelButton)
+				.addComponents(confirmButton, cancelButton)
 		],
 		ephemeral: true
 	});
 };
 
-export default purge;
+export default deleteColors;
